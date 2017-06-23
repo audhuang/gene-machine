@@ -10,7 +10,7 @@ def visualize():
 
 
 def main(): 
-	n = 2
+	n = 10
 	number = 5
 	low = -1
 	high = 10

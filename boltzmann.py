@@ -3,23 +3,6 @@ import numpy as np
 import random 
 
 
-it = 10
-repeat = 100
-n = 5
-c = 1
-threshold = 1.
-
-bin_to_int = {}
-int_to_bin = {}
-x_all = np.zeros([2**n, n])
-bin = np.zeros([n])
-for i in range(2 ** n): 
-	temp = "{0:b}".format(i)
-	bin = '0' * (n - len(temp)) + temp
-	bin_to_int[bin] = i
-	int_to_bin[i] = bin
-	x_all[i] = list(bin)
-x_all = x_all * 2 - 1
 
 
 # fix matrix dE
@@ -33,6 +16,8 @@ def random_network(n, mu = 0., sigma = 1.):
 	return network
 
 def energy(x, J, h):
+	# print(np.sum(np.dot(J, np.outer(x, x))))
+	# print(np.dot(np.dot(x, J), np.transpose(x)))
 	e = np.dot(np.dot(x, J), np.transpose(x)) + np.dot(x, np.transpose(h)) 
 	return e 
 
@@ -43,13 +28,13 @@ def acceptance(x_new, x_cur, J, h, c):
 	return min(1, p_ratio), e_new
 
 
-def energy_all(x_all, J, h, c): 
+def energy_all(x_all, J, h, c, n): 
 	energies = np.zeros([2**n])
 	for i in range(2**n): 
 		energies[i] = energy(x_all[i], J, h)
 	return energies
 
-def boltz(n, J, h, c): 
+def boltz(J, h, c, n, it, repeat): 
 	# J_true = random_network(n)
 	# J = np.random.normal(mu, sigma, [n, n])
 	# h = np.zeros([1, n])
@@ -80,7 +65,7 @@ def boltz(n, J, h, c):
 	return x_array, e_array
 
 
-def x_to_states(x_array): 
+def x_to_states(x_array, n, repeat, bin_to_int): 
 	x = ((x_array + 1) / 2).astype(int)
 	# print('x: ', x)
 	states = np.zeros([2**n])
@@ -92,7 +77,7 @@ def x_to_states(x_array):
 		states[dec] += 1
 	return states
 
-def states_to_dE(states): 
+def states_to_dE(states, n): 
 	dE = np.zeros([2**n, 2**n])
 	for i in range(2**n): 
 		for j in range(2**n): 
@@ -105,7 +90,7 @@ def states_to_dE(states):
 	return dE
 	# what did we do again if there was zero in state count?
 
-def states_to_dE_one(states): 
+def states_to_dE_one(states, x_all, n, threshold, c): 
 	dE = np.zeros([2 ** n])
 	S = np.zeros([2 ** n, n, n])
 	base = np.argmax(states)
@@ -119,14 +104,14 @@ def states_to_dE_one(states):
 		S[i] = np.transpose(np.outer(x_all[i], x_all[i]) - np.outer(x_all[base], x_all[base]))
 
 
-	print('dE": ', dE)
+	# print('dE": ', dE)
 	dE = -c * np.log(dE)
 	return dE, S
 
 
 
 
-def xall_to_S(x_all): 
+def xall_to_S(x_all, n): 
 	S = np.zeros([2**n, 2**n, n, n])
 	for i in range(2**n): 
 		for j in range(2**n): 
@@ -144,22 +129,91 @@ def solve_l1(S, dE):
 
 
 def error(true, pred, n): 
-	return np.sum(np.abs(true - pred)) / n
+	return np.sum(np.abs(true - pred)) / n**2
 
+
+def run(n, number, low, high, stride, it, repeat, threshold, out): 
+	bin_to_int = {}
+	int_to_bin = {}
+	x_all = np.zeros([2**n, n])
+	bin = np.zeros([n])
+	for i in range(2 ** n): 
+		temp = "{0:b}".format(i)
+		bin = '0' * (n - len(temp)) + temp
+		bin_to_int[bin] = i
+		int_to_bin[i] = bin
+		x_all[i] = list(bin)
+	x_all = x_all * 2 - 1
+
+	J_dict = {}
+	err_dict = {}
+
+
+	for c_ in np.linspace(low, high+1, stride): 
+		c = 10. ** c_
+		print('c: ', c)
+
+		J_dict[c_] = np.zeros([number, n, n])
+		err_dict[c_] = np.zeros([number])
+		for num in range(number): 
+			J = random_network(n)
+			h = np.zeros([n])
+			
+			x_array, e_array = boltz(J, h, c, n, it, repeat)
+			
+			states = x_to_states(x_array, n, repeat, bin_to_int)
+			
+			dE, S = states_to_dE_one(states, x_all, n, threshold, c)
+
+			S_flat = S.reshape([2**n, n**2])
+			dE_flat = dE
+
+			J_hat = solve(S_flat, dE_flat)
+			J_hat = J_hat.reshape([n, n])
+			
+			err = error(J, J_hat, n)
+			print('error: ', err)
+
+			J_dict[c_][num] = J_hat
+			err_dict[c_][num] = err 
+			np.save(out + './J_dict_' + str(number) + '_' + str(low) + '_' + str(high) + '_' + str(stride), J_dict)
+			np.save(out + './err_dict_' + str(number) + '_' + str(low) + '_' + str(high) + '_' + str(stride), err_dict)
+
+		print('\n')
+	print(err_dict)
 
 
 def main(): 
+	it = 10
+	repeat = 100
+	n = 2
+	c = 1
+	threshold = 1.
+
+	bin_to_int = {}
+	int_to_bin = {}
+	x_all = np.zeros([2**n, n])
+	bin = np.zeros([n])
+	for i in range(2 ** n): 
+		temp = "{0:b}".format(i)
+		bin = '0' * (n - len(temp)) + temp
+		bin_to_int[bin] = i
+		int_to_bin[i] = bin
+		x_all[i] = list(bin)
+	x_all = x_all * 2 - 1
+
+
 	J = random_network(n)
 	h = np.zeros([n])
-	energies = energy_all(x_all, J, h, c)
+	energies = energy_all(x_all, J, h, c, n)
 	print('energies: ', energies)
-	x_array, e_array = boltz(n, J, h, c)
+	x_array, e_array = boltz(J, h, c, n, it, repeat)
 	# print('x array:', x_array)
 	# print('e array:', e_array)
-	states = x_to_states(x_array)
+	states = x_to_states(x_array, n, repeat, bin_to_int)
 	# states = [0., 47., 41., ]
 	print('states: ', states)
-	dE, S = states_to_dE_one(states)
+	dE, S = states_to_dE_one(states, x_all, n, threshold, c)
 	print('dE: ', dE)
 	# print(S)
 

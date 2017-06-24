@@ -157,7 +157,7 @@ def run_repeat_temp(n, number, low, high, threshold, out):
 		errors[i, 0] = c_list[i]
 		errors[i, 1] = err 
 
-		if i % 10000 == 0: 
+		if i % 1000 == 0: 
 			print('run: ', i, c_list[i], repeat)
 			print('error: ', err)
 			np.save(out + 'err_repeat_temp', errors)

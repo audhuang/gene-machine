@@ -55,7 +55,7 @@ def main():
 
 
 	n = 10
-	number = 10**8
+	number = 10**7
 	low = -1
 	high = 4
 	threshold = 10.

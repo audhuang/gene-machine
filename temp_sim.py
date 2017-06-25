@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import numpy as np
 import random 
 # from boltzmann import *
-from runs import *
+from runs_parallel import *
 import matplotlib.pyplot as plt
 
 
@@ -25,6 +25,13 @@ def visualize(out, number, low, high, stride, outfile):
 	plt.xlabel('temperature')
 	plt.show()
 
+
+'''
+notes
+
+lasso variable selection 
+
+'''
 
 def main(): 
 	# n = 10
@@ -55,7 +62,7 @@ def main():
 
 
 	n = 10
-	number = 10**7
+	number = 10**5
 	low = -1
 	high = 4
 	threshold = 10.

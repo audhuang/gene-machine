@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import numpy as np
 import random 
 from sklearn.linear_model import Lasso
+from numpy.linalg import matrix_rank
 
 
 
@@ -102,17 +103,29 @@ def x_to_states(x_array, n, repeat, bin_to_int):
 		states[dec] += 1
 	return states
 
-def states_to_dE(states, n): 
-	dE = np.zeros([2**n, 2**n])
+def states_to_dE(states, x_all, n, threshold, c): 
+	dE = np.zeros([2 ** n])
+	S = np.zeros([2 ** n, n, n])
+	base = np.argmax(states)
+	base_count = states[base]
+	zero_states = np.zeros([2 ** n])
+
 	for i in range(2**n): 
-		for j in range(2**n): 
-			if states[j] == 0: 
-				dE[i, j] = 0
-			else: 
-				dE[i, j] = states[i] / states[j] 
+		count = states[i]
+		if count > threshold: 
+			zero_states[i] = 1
+			dE[i] = count / base_count
+			S[i] = np.transpose(np.outer(x_all[i], x_all[i]) - np.outer(x_all[base], x_all[base]))
+			# print(x_all[i])
 	
+	# print(S)
+	indices = np.where(dE != 0)
+
+	dE = np.take(dE, indices)[0]
+	S = np.take(S, indices, axis=0)[0]
+
 	dE = -c * np.log(dE)
-	return dE
+	return dE, S, zero_states
 
 def states_to_dE_one(states, x_all, n, threshold, c): 
 	dE = np.zeros([2 ** n])
@@ -122,9 +135,9 @@ def states_to_dE_one(states, x_all, n, threshold, c):
 	for i in range(2 ** n): 
 		count = states[i]
 		if count > threshold: 
-			dE[i] = states[i] / base_count
+			dE[i] = count / base_count
 		else: 
-			dE[i] = 0.00001
+			dE[i] = 0.000001
 		S[i] = np.transpose(np.outer(x_all[i], x_all[i]) - np.outer(x_all[base], x_all[base]))
 
 	dE = -c * np.log(dE)
@@ -147,7 +160,7 @@ def solve(S, dE):
 	return np.dot(np.linalg.pinv(S), dE) 
 
 def solve_l1(S, dE, a): 
-	clf = Lasso(alpha=a, fit_intercept=False)
+	clf = Lasso(alpha=a, fit_intercept=False, tol=0.0001, max_iter=10**6)
 	clf.fit(S, dE)
 	return clf.coef_
 
@@ -160,11 +173,11 @@ def error(true, pred, n):
 
 
 def main(): 
-	it = 10
+	it = 100
 	repeat = 1000
-	n = 2
-	c = 1
-	threshold = 1.
+	n = 3
+	c = .1
+	threshold = 10.
 
 	bin_to_int = {}
 	int_to_bin = {}
@@ -195,15 +208,17 @@ def main():
 	states = x_to_states(x_array, n, repeat, bin_to_int)
 	print('states: ', states)
 	
-	dE, S = states_to_dE_one(states, x_all, n, threshold, c)
+	dE, S, zero_states = states_to_dE(states, x_all, n, threshold, c)
+	# dE, S = states_to_dE_one(states, x_all, n, threshold, c)
 	print('dE: ', dE)
+	print('zero states: ', zero_states)
 
-	S_flat = S.reshape([2**n, n**2])
+	S_flat = S.reshape([len(dE), n**2])
 	dE_flat = dE
 
 
-	J_hat = solve_l1(S_flat, dE_flat, 0.1)
-	# J_hat = solve(S_flat, dE_flat)
+	# J_hat = solve_l1(S_flat, dE_flat, 0.1)
+	J_hat = solve(S_flat, dE_flat)
 	J_hat = J_hat.reshape([n, n])
 	print('J": ', J_hat)
 	print('J: ', J)
@@ -211,6 +226,7 @@ def main():
 	err = error(J, J_hat, n)
 	print('error: ', err)
 
+	print(matrix_rank(dE_flat), matrix_rank(J), matrix_rank(J_hat))
 
 # l1 penalty	
 # optimal temperature for runs 

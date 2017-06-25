@@ -1,7 +1,7 @@
 import random 
 import multiprocessing as mp
 from boltzmann import *
-
+from numpy.linalg import matrix_rank
 
 
 
@@ -10,8 +10,8 @@ def run(i, n, low, high, x_all, bin_to_int, threshold=10.):
 	c = 10. ** c_
 	repeat = np.random.randint(100, 10**5)
 
-	# J = random_network(n)
-	J = sparse_random_network(n, 0.75)
+	J = random_network(n)
+	# J = sparse_random_network(n, 0.75)
 	h = np.zeros([n])
 
 	energies = energy_all(x_all, J, h, c, n)
@@ -25,7 +25,7 @@ def run(i, n, low, high, x_all, bin_to_int, threshold=10.):
 	S_flat = S.reshape([2**n, n**2])
 	dE_flat = dE
 
-	# J_hat = solve_l1(S_flat, dE_flat, 2.)
+	# J_hat = solve_l1(S_flat, dE_flat, 1.)
 	J_hat = solve(S_flat, dE_flat)
 	J_hat = J_hat.reshape([n, n])
 	
@@ -35,7 +35,7 @@ def run(i, n, low, high, x_all, bin_to_int, threshold=10.):
 		print('run: ', i, c, repeat, err)
 		# np.save(out + 'err_repeat_temp', errors)
 	
-	return (c_, repeat, err)
+	return (c_, repeat, err, matrix_rank(S))
 
 
 
@@ -56,7 +56,7 @@ def run_repeat_temp(n, number, low, high, threshold, out):
 	results = [pool.apply_async(run, args=(x, n, low, high, x_all, bin_to_int)) for x in range(number)]
 	output = [p.get() for p in results]
 
-	np.save(out + 'repeat_temp_sparse', output)
+	np.save(out + 'repeat_temp_5', output)
 
 	# print(output)
 	# np.save(out + 'err_repeat_temp', results)

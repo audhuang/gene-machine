@@ -23,13 +23,20 @@ def heatmap(inp, out):
 	plt.savefig('./results/' + out)
 
 
+def rank_v_T(inp, out): 
+	results = np.load('./results/' + inp + '.npy')
+	c = err[:, 0]
+	rank = results[:, 3]
+
+	plt.figure()
+	plt.scatter(c, rank)
+	plt.xlabel('Log(Temp)')
+	plt.ylabel('Rank')
+	plt.title('Rank v Temp')
+	plt.savefig('./results/' + out)
+
+
 def main(): 
-
-	inp = 'repeat_temp'
-	out = 'samples_temp_10000'
-	heatmap(inp, out)
-
-
 	inp = 'repeat_temp_l1'
 	out = 'samples_temp_l1_10000'
 	heatmap(inp, out)

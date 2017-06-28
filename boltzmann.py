@@ -33,6 +33,7 @@ def energy(x, J, h):
 	e = np.dot(np.dot(x, J), np.transpose(x)) + np.dot(x, np.transpose(h)) 
 	return e 
 
+
 def acceptance(x_new, x_cur, J, h, c): 
 	e_new = energy(x_new, J, h)
 	e_cur = energy(x_cur, J, h)
@@ -168,6 +169,18 @@ def solve_l1(S, dE, a):
 def error(true, pred, n): 
 	return np.sum(np.abs(true - pred)) / n**2
 
+def error_l0(true, pred, n, thresh): 
+	true = np.abs(true)
+	pred = np.abs(pred)
+	count = 0
+	for i in range(n): 
+		for j in range(n): 
+			if pred[i, j] > thresh and true[i, j] > 0.: 
+				# print(pred[i, j], true[i, j])
+				count += 1
+	return(count / n ** 2)
+
+
 
 
 
@@ -175,8 +188,8 @@ def error(true, pred, n):
 def main(): 
 	it = 100
 	repeat = 1000
-	n = 3
-	c = .1
+	n = 5
+	c = 1.
 	threshold = 10.
 
 	bin_to_int = {}
@@ -192,8 +205,8 @@ def main():
 	x_all = x_all * 2 - 1
 
 
-	# J = sparse_random_network(n, 0.75)
-	J = random_network(n)
+	J = sparse_random_network(n, 0.75)
+	# J = random_network(n)
 	h = np.zeros([n])
 
 	# x_array, e_array = boltz(J, h, c, n, it, repeat)
@@ -217,13 +230,13 @@ def main():
 	dE_flat = dE
 
 
-	# J_hat = solve_l1(S_flat, dE_flat, 0.1)
-	J_hat = solve(S_flat, dE_flat)
+	J_hat = solve_l1(S_flat, dE_flat, 0.1)
+	# J_hat = solve(S_flat, dE_flat)
 	J_hat = J_hat.reshape([n, n])
 	print('J": ', J_hat)
 	print('J: ', J)
 
-	err = error(J, J_hat, n)
+	err = error_l0(J, J_hat, n, thresh = 10. ** -4)
 	print('error: ', err)
 
 	print(matrix_rank(dE_flat), matrix_rank(J), matrix_rank(J_hat))

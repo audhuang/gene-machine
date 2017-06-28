@@ -5,6 +5,7 @@ from boltzmann import *
 from numpy.linalg import matrix_rank
 
 a = 1
+l0_thresh = 10.**-3
 
 '''
 if n_dE = 2, J_hat becomes 0 
@@ -51,10 +52,10 @@ def run_none_l1(i, n, low, high, x_all, bin_to_int, threshold=10.):
 		J_l1 = solve_l1(S_flat, dE_flat, a)
 		J_l1 = J_l1.reshape([n, n])
 	
-	err_none = error(J, J_none, n)
+	err_none = error_l0(J, J_none, n, l0_thresh)
 	Jnone_rank = matrix_rank(J_none)
 
-	err_l1 = error(J, J_l1, n)
+	err_l1 = error_l0(J, J_l1, n, l0_thresh)
 	Jl1_rank = matrix_rank(J_l1)
 
 	if i % 1000 == 0:
@@ -82,7 +83,7 @@ def run_1(n, number, low, high, threshold, out):
 	results = [pool.apply_async(run_none_l1, args=(x, n, low, high, x_all, bin_to_int)) for x in range(number)]
 	output = [p.get() for p in results]
 
-	np.save(out + 'none_l1_5_' + str(a), output)
+	np.save(out + 'none_l1_5_10_l0err_' + str(a), output)
 
 
 
@@ -161,7 +162,7 @@ def run_2(n, repeat, mult, low, high, bins, threshold, out):
 
 def main(): 
 	n = 10
-	number = 10 ** 5
+	number = 10**5
 	low = -1
 	high = 4
 	threshold = 10.

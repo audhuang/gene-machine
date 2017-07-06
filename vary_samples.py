@@ -19,13 +19,24 @@ def get_full_S(x_all, n):
 def get_random_S(n): 
 	return np.random.normal(mu, sigma, [2**n, n**2])
 
+def get_bin_S(n): 
+	x = np.random.binomial(1, 0.5, [2**n, n**2])
+	x = x * 2 - 1
+	return x
+
+
 def vary_samples(n, J, S_flat, out): 
 	results = np.zeros([2**n+1, 10, 6])
 	count = 0
 
 	alist = [4 * 10**-5, 0.0002, 0.001, 0.005, 0.025, 0.125, 0.125*5, 0.125*25]
+	# alist = np.zeros([10])
+	# alist[0] = 0.1
+	# for i in range(1, 10): 
+	# 	alist[i] = alist[i-1] + 0.5
 
 	for a in alist: 
+		print('a: ', a)
 		for i in range(1, 2**n+1): 
 			indices = np.random.choice(2**n, i)
 
@@ -55,7 +66,7 @@ def vary_samples(n, J, S_flat, out):
 			results[i-1, count] = np.asarray([err_lin, err_lin_l0, err_none, err_l1, err_none_l0, err_l1_l0])
 		count += 1
 
-	np.save(out + 'results_lin_smaller.npy', results)
+	np.save(out + 'results_25', results)
 
 	
 
@@ -101,6 +112,8 @@ def run(n, out):
 	J_rank = matrix_rank(J)
 	
 	S = get_random_S(n)
+	# S = get_full_S(x_all, n)
+	# S = get_bin_S(n)
 	S_flat = S.reshape([2**n, n**2])
 
 	vary_samples(n, J_flat, S_flat, out)
@@ -113,7 +126,7 @@ def run(n, out):
 
 
 def main(): 
-	n = 10
+	n = 25
 	number = 1
 	low = -1
 	high = 4

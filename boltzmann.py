@@ -26,6 +26,37 @@ def sparse_random_network(n, perc, mu = 0., sigma = 1.):
 	np.fill_diagonal(network, 0)
 	return network
 
+def sparse_num_network(n, number, mu = 0., sigma = 1.): 
+	num = int(number / 2 - n)
+	if num < 0: 
+		num = 0
+	m = int(n * (n-1) / 2)
+	random = np.random.normal(mu, sigma, [m])
+	# print(random)
+	indices = np.random.choice(range(m), num, replace=False)
+	for i in range(num): 
+		random[indices[i]] = 0
+	# print(random)
+	
+	temp = np.zeros([n, n])
+	temp[np.tril_indices(n, -1)] = random
+	# print(temp)
+
+	network = temp + temp.T
+	# print(network)
+	np.fill_diagonal(network, 0)
+	return network
+
+def sparse_rand(n, num, mu = 0., sigma = 1.): 
+	random = np.random.normal(mu, sigma, [n**2])
+	if num == 0: 
+		return random
+	else: 
+		indices = np.random.choice(range(n**2), num, replace=False)
+		for i in range(num): 
+			random[indices[i]] = 0
+		return random
+
 # check the math here
 def energy(x, J, h):
 	# print(np.sum(np.dot(J, np.outer(x, x))))
@@ -170,15 +201,8 @@ def error(true, pred, n):
 	return np.sum(np.abs(true - pred)) / n**2
 
 def error_l0(true, pred, n, thresh): 
-	true = np.abs(true)
-	pred = np.abs(pred)
-	count = 0
-	for i in range(n): 
-		for j in range(n): 
-			if pred[i, j] > thresh and true[i, j] > 0.: 
-				# print(pred[i, j], true[i, j])
-				count += 1
-	return(count / n ** 2)
+	temp = np.abs(true - pred)
+	return np.sum(temp < thresh) / n**2
 
 
 

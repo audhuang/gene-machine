@@ -6,7 +6,6 @@ from numpy.linalg import matrix_rank
 from scipy.sparse import random
 
 
-thresh = 10**-4
 mu = 0.
 sigma = 1.
 num_sparse=20
@@ -28,18 +27,20 @@ def get_bin_S(n):
    return x
 
 
+
+
 def vary_samples(x, n): 
    # results = np.zeros([num, 4])
   
    # for q in np.linspace(0., .9, num=num_sparse, endpoint=True): 
    # for x in range(num): 
-   q = np.random.uniform(low=0., high=1.)
    i = np.random.randint(low=1., high=n**2+1)
+   q = np.random.randint(low=n**2-i, high=n**2+1)
+
    
-   J = sparse_random_network(n, q, 0, 1.)
-   while np.sum(abs(J)) == 0: 
-      J = sparse_random_network(n, q, 0, 1.)
-   J = J.reshape([n**2])
+   # J = sparse_random_network(n, q, 0, 1.).reshape([n**2])
+   # J = sparse_num_network(n, q).reshape([n**2])
+   J = sparse_rand(n, q)
    k = np.sum(J != 0)
 
    S_flat = get_random_S(n).reshape([2**n, n**2])
@@ -54,21 +55,20 @@ def vary_samples(x, n):
    dE_rank = len(dE)
 
    J_none = solve(S, dE)
-   # print(J_none.reshape([n, n]))
-   err_none = error(J, J_none, n)
-   # Jnone_rank = matrix_rank(J_none)
+   err_none_3 = error_l0(J, J_none, n, 10**-3)
 
    J_l1 = solve_l1(S, dE, a)
-   # print(J_l1.reshape([n, n]))
-   err_l1 = error(J, J_l1, n)
-      
+   err_l1_3 = error_l0(J, J_l1, n, 10**-3)
+   
+   err_none_6 = error_l0(J, J_none, n, 10**-6)
+   err_l1_6 = error_l0(J, J_l1, n, 10**-6)
 
    # results[x] = np.asarray([delta, nu, err_none, err_l1])
 
-   if x % 100 == 0: 
-      print(x, q, i, err_none, err_l1)
+   if x % 1000 == 0: 
+      print(x, i, q, k, err_none_3, err_l1_3)
 
-   return (q, i, err_none, err_l1)
+   return (k, i, err_none_3, err_l1_3, err_none_6, err_l1_6)
 
    # np.save(out + 'phase_' + str(num), results)
 
@@ -79,14 +79,18 @@ def run(n, num, out):
    output = [p.get() for p in results]
    print(np.shape(output))
 
-   np.save(out + '_phase_3', output)
+   np.save(out + 'phase_l0_5_2', output)
+
+
+
+      
    
 
       
 
 def main(): 
    n = 10
-   num = 10**3
+   num = 10**5
    output = './phase_results/'
    run(n, num, output)
    

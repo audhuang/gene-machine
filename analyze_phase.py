@@ -9,18 +9,18 @@ num_sparse = 20
 def phase_graph(inp, out): 
 	results = np.load(inp + '.npy')
 	print(np.shape(results))
-	results = results.reshape([num_sparse * n**2, 4])
-	print(np.shape(results))
 
-	delta = results[:, 0]
-	nu = results[:, 1]
-	err_none = np.log(results[:, 2])
-	err_l1 = np.log(results[:, 3])
+	q = results[:, 0]
+	i = results[:, 1]
+	delta = i / n**2
+	nu = q / i 
+	err_none = results[:, 2]
+	err_l1 = results[:, 3]
 	# print(results[:, 3])
 	# print(np.min(err_l1), np.max(err_none))
 
 	plt.figure()
-	plt.scatter(delta, nu, c=err_none, s=10, cmap="viridis", vmin=-10, vmax=0, lw=0)
+	plt.scatter(delta, nu, c=err_none, s=1, cmap="jet", vmin=0, vmax=1)
 	plt.colorbar()
 	plt.xlabel('delta')
 	plt.ylabel('nu')
@@ -30,7 +30,7 @@ def phase_graph(inp, out):
 	plt.savefig(out + '_none')
 
 	plt.figure()
-	plt.scatter(delta, nu, c=err_l1, s=10, cmap="viridis", vmin=-10, vmax=0, lw=0)
+	plt.scatter(delta, nu, c=err_l1, s=1, cmap="jet", vmin=0, vmax=1)
 	plt.colorbar()
 	plt.xlabel('delta')
 	plt.ylabel('nu')
@@ -42,7 +42,7 @@ def phase_graph(inp, out):
 
 
 def main(): 
-	inp = './phase_results/phase_10'
+	inp = './phase_results/phase_l0_5_2'
 	out = inp
 	phase_graph(inp, out)
 

@@ -79,7 +79,7 @@ def run(n, num, out):
    output = [p.get() for p in results]
    print(np.shape(output))
 
-   np.save(out + '_phase', output)
+   np.save(out + '_phase_3', output)
    
 
       

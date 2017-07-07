@@ -45,8 +45,6 @@ def vary_samples(x, n):
    S_flat = get_random_S(n).reshape([2**n, n**2])
 
    # for i in range(1, n**2): 
-   delta = i / n**2
-   nu = k / i
 
    indices = np.random.choice(2**n, i)
 
@@ -70,7 +68,7 @@ def vary_samples(x, n):
    if x % 100 == 0: 
       print(x, q, i, err_none, err_l1)
 
-   return (delta, nu, err_none, err_l1)
+   return (q, i, err_none, err_l1)
 
    # np.save(out + 'phase_' + str(num), results)
 

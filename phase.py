@@ -100,14 +100,12 @@ def vary_samples(x, n):
 
    # np.save(out + 'phase_' + str(num), results)
 
-def vary_samples2(x, n, param): 
-   i = param[0]
-   q = param[1]
+def vary_samples2(x, n, i, q): 
    
    J = sparse_rand(n, q)
    k = np.sum(J != 0)
 
-   S_flat = get_random_S(n).reshape([2**n, n**2])
+   S_flat = get_random_S(n)
 
    indices = np.random.choice(2**n, i)
 
@@ -117,12 +115,10 @@ def vary_samples2(x, n, param):
    dE_rank = len(dE)
 
    J_none = solve(S, dE)
-
    J_l1 = solve_l1(S, dE, a)
    
-   if x % 1000 == 0: 
+   if x % 400 == 0: 
       print(x, i, q, k)
-      print(np.shape(list(J_none) + list(J_l1)))
 
    return list(J_none) + list(J_l1)
 
@@ -142,25 +138,24 @@ def run2(n, num, out):
    n_y = 20
    n_all = 50
 
-   xlist = np.linspace([1, 100, n_x]).astype(int)
+   xlist = np.linspace(1, 100, n_x).astype(int)
    params = np.zeros([n_x * n_y * n_all, 2])
    count = 0
 
    for x in xlist: 
-      ylist = np.linspace([n**2-x, n**2, n_y]).astype(int)
+      ylist = np.linspace(n**2-x, n**2, n_y).astype(int)
       for y in ylist: 
          for j in range(n_all): 
             params[count] = [x, y]
             count += 1
-   print(count)
+   params = params.astype(int)
 
    pool = mp.Pool()
-   # results = [pool.apply_async(vary_samples, args=(x, n)) for x in range(num)]
-   results = [pool.apply_async(vary_samples2, args=(x, n, params[x])) for x in range(n_x * n_y * n_all)]
+   results = [pool.apply_async(vary_samples2, args=(x, n, params[x, 0], params[x, 1])) for x in range(len(params))]
    output = [p.get() for p in results]
-   print(np.shape(output))
+   # print(np.shape(output))
 
-   np.save(out + 'phase_new', output)
+   np.save(out + 'phase_new_50', output)
 
 
 
@@ -174,7 +169,7 @@ def main():
    n = 10
    num = 10**5
    output = './phase_results/'
-   run(n, num, output)
+   run2(n, num, output)
    
 
 if __name__ == '__main__':

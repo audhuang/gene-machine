@@ -57,9 +57,6 @@ def graph(x, n, param):
    return (k, obs, err_none_0, err_l1_0, err_none_2, err_l1_2)
 
 
-
-
-
 def vary_samples(x, n): 
    # results = np.zeros([num, 4])
   
@@ -103,15 +100,34 @@ def vary_samples(x, n):
 
    # np.save(out + 'phase_' + str(num), results)
 
+def vary_samples2(x, n, param): 
+   i = param[0]
+   q = param[1]
+   
+   J = sparse_rand(n, q)
+   k = np.sum(J != 0)
+
+   S_flat = get_random_S(n).reshape([2**n, n**2])
+
+   indices = np.random.choice(2**n, i)
+
+   S = np.take(S_flat, indices, axis=0)
+
+   dE = np.dot(S, J)
+   dE_rank = len(dE)
+
+   J_none = solve(S, dE)
+
+   J_l1 = solve_l1(S, dE, a)
+   
+   if x % 1000 == 0: 
+      print(x, i, q, k)
+      print(np.shape(list(J_none) + list(J_l1)))
+
+   return list(J_none) + list(J_l1)
+
 
 def run(n, num, out): 
-   params = np.zeros([n, k, repeat])
-
-   for i in range(1, 10): 
-      params[0] = 0.1 * 
-
-
-
 
    pool = mp.Pool()
    # results = [pool.apply_async(vary_samples, args=(x, n)) for x in range(num)]
@@ -120,6 +136,32 @@ def run(n, num, out):
    print(np.shape(output))
 
    np.save(out + 'phase_all', output)
+
+def run2(n, num, out): 
+   n_x = 20
+   n_y = 20
+   n_all = 50
+
+   xlist = np.linspace([1, 100, n_x]).astype(int)
+   params = np.zeros([n_x * n_y * n_all, 2])
+   count = 0
+
+   for x in xlist: 
+      ylist = np.linspace([n**2-x, n**2, n_y]).astype(int)
+      for y in ylist: 
+         for j in range(n_all): 
+            params[count] = [x, y]
+            count += 1
+   print(count)
+
+   pool = mp.Pool()
+   # results = [pool.apply_async(vary_samples, args=(x, n)) for x in range(num)]
+   results = [pool.apply_async(vary_samples2, args=(x, n, params[x])) for x in range(n_x * n_y * n_all)]
+   output = [p.get() for p in results]
+   print(np.shape(output))
+
+   np.save(out + 'phase_new', output)
+
 
 
 

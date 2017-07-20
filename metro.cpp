@@ -51,7 +51,6 @@ double metropolis::energy_new()
 
 double metropolis::step(double energy_old)
 {
-	// int size = lattice_.size(); 
 	int flip_ind = ind_rand_(r_engine_); 
 	lattice_[flip_ind] = -lattice_[flip_ind]; 
 	double energy_new = energy(); 

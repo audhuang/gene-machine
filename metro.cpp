@@ -25,7 +25,7 @@ metropolis::~metropolis()
 
 void metropolis::init_lattice_random()
 {
-  for (int i=0; i< lattice_.size(); i++) {
+  for (unsigned i=0; i< lattice_.size(); i++) {
     lattice_[i] = -1 + 2 * bin_rand_(r_engine_);
   }
 }
@@ -44,16 +44,16 @@ double metropolis::energy_new()
 
 double metropolis::step(double energy_old)
 {
-	int size = lattice_.size(); 
+	// int size = lattice_.size(); 
 	int flip_ind = ind_rand_(r_engine_); 
-	lattice[i] = -lattice[i]; 
+	lattice_[flip_ind] = -lattice_[flip_ind]; 
 	double energy_new = energy(); 
-	double trans_prob = min(exp(-(energy_new - energy_old) / temp_), 1); 
+	double trans_prob = min(exp(-(energy_new - energy_old) / temp_), 1.); 
 	
 	if (prob_rand_(r_engine_) > trans_prob)
 	{
 		energy_new = energy_old; 
-		lattice[i] = -lattice[i]; 
+		lattice_[flip_ind] = -lattice_[flip_ind]; 
 	}
 	return energy_new; 
 }
@@ -64,7 +64,7 @@ vector<double> metropolis::simulate(int n_steps)
 	double energy_old = energy(); 
 	for (int i = 0; i < n_steps; i++) 
 	{
-		e = step(energy_old); 
+		double e = step(energy_old); 
 		energy_vector[i] = e; 
 		energy_old = e; 
 	}

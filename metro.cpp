@@ -3,9 +3,10 @@
 using namespace std; 
 
 
-metropolis::metropolis(unsigned size, double temp, vector<vector<double>> J) :
+metropolis::metropolis(int size, double temp, vector<vector<double>> J) :
 	lattice_(size),
 	temp_(temp),
+	size_(size), 
 	seed_(std::chrono::system_clock::now().time_since_epoch().count()),
 	r_engine_(seed_),
 	bin_rand_(0,1),
@@ -25,15 +26,23 @@ metropolis::~metropolis()
 
 void metropolis::init_lattice_random()
 {
-  for (unsigned i=0; i< lattice_.size(); i++) {
+  for (int i=0; i < size_; i++) {
     lattice_[i] = -1 + 2 * bin_rand_(r_engine_);
   }
 }
 
 double metropolis::energy()
 {
-	
-	return 0.; 
+	double sum = 0; 
+	for (int i = 0; i < size_; i++)
+	{
+		vector<double> col = J_[i]; 
+		sum = sum + inner_product(lattice_.begin(), lattice_.end(), col.begin(), 0.); 
+		// cout << sum << " | "; 
+
+	}
+	// cout << "\n"; 
+	return sum; 
 }
 
 double metropolis::energy_new()
@@ -48,24 +57,32 @@ double metropolis::step(double energy_old)
 	int flip_ind = ind_rand_(r_engine_); 
 	lattice_[flip_ind] = -lattice_[flip_ind]; 
 	double energy_new = energy(); 
+	cout << energy_old << " vs. " << energy_new << "\n"; 
 	double trans_prob = min(exp(-(energy_new - energy_old) / temp_), 1.); 
+	double rv = prob_rand_(r_engine_); 
+	cout << rv << ", " << trans_prob << "\n"; 
 	
-	if (prob_rand_(r_engine_) > trans_prob)
+	if (rv > trans_prob)
 	{
 		energy_new = energy_old; 
 		lattice_[flip_ind] = -lattice_[flip_ind]; 
 	}
+	print_lattice(); 
 	return energy_new; 
 }
 
 vector<double> metropolis::simulate(int n_steps)
 {
-	vector<double> energy_vector(n_steps); 
+	cout << "start: "; 
+	print_lattice(); 
+	cout << "\n";  
+	vector<double> energy_vector(n_steps + 1); 
 	double energy_old = energy(); 
+	energy_vector[0] = energy_old; 
 	for (int i = 0; i < n_steps; i++) 
 	{
 		double e = step(energy_old); 
-		energy_vector[i] = e; 
+		energy_vector[i+1] = e; 
 		energy_old = e; 
 	}
 	return energy_vector;
@@ -75,6 +92,14 @@ vector<double> metropolis::simulate(int n_steps)
 vector<int> metropolis::get_lattice()
 {
 	return lattice_; 
+}
+
+void metropolis::print_lattice()
+{
+	for (int i=0; i < size_; i++) {
+		cout << lattice_[i] << " | "; 
+	}
+	cout << '\n';
 }
 
 // void metropolis::set_temp(double temp) 

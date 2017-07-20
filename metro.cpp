@@ -38,10 +38,8 @@ double metropolis::energy()
 	{
 		vector<double> col = J_[i]; 
 		sum = sum + inner_product(lattice_.begin(), lattice_.end(), col.begin(), 0.); 
-		// cout << sum << " | "; 
 
 	}
-	// cout << "\n"; 
 	return sum; 
 }
 

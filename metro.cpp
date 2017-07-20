@@ -68,6 +68,34 @@ double metropolis::step(double energy_old)
 	return energy_new; 
 }
 
+void metropolis::step_new()
+{
+
+	int flip_ind = ind_rand_(r_engine_); 
+	int val_i = lattice_[flip_ind]; 
+	double energy_diff = -2 * val_i * inner_product(lattice_.begin(), lattice_.end(), J_[flip_ind].begin(), 0.); 
+	if (energy_diff > 0)
+	{
+		lattice_[flip_ind] = -lattice_[flip_ind]; 
+	}
+	
+	else
+	{
+		double trans_prob = exp(energy_diff / temp_); 
+
+		double rv = prob_rand_(r_engine_); 
+		cout << rv << ", " << trans_prob << "\n"; 
+		
+		if (rv < trans_prob)
+		{
+			lattice_[flip_ind] = -lattice_[flip_ind]; 
+		}
+	}
+	
+	print_lattice(); 
+	return; 
+}
+
 vector<double> metropolis::simulate(int n_steps)
 {
 	cout << "start: "; 

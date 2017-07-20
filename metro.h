@@ -14,9 +14,11 @@ class metropolis {
 		double energy(); 
 		double energy_new(); 
 		double step(double energy_old); 
+		void step_new(); 
 		vector<double> simulate(int n_steps);
 		vector<int> get_lattice();
 		void print_lattice(); 
+
 		// void set_temp(double temp);
 		// void set_J(vector<vector<double>> J); 
 

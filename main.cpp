@@ -5,7 +5,7 @@ using namespace std;
 
 int main()
 {
-	int size = 3; 
+	int size = 5; 
 	double temp = 1; 
 	vector<vector<double>> J(size, vector<double>(size)); 
 	for (int i=0; i < size; i++) {
@@ -16,28 +16,12 @@ int main()
 	}
 
 
-	metropolis metro(size, temp, J); 
+	metropolis metro(size, temp); 
+	metro.print_J(); 
+	metro.simulate_new(3); 
 	metro.print_lattice(); 
-
-
-	int n_steps = 50; 
-	// vector<double> energy = metro.simulate(n_steps); 
-	// for (int i = 0; i < (n_steps + 1); i++) {
-	// 	cout << energy[i] << " | "; 
-	// }
-	// cout << '\n'; 
-
-	// double energy_old = metro.energy(); 
-	// for (int i = 0; i < (n_steps); i++)
-	// {
-	// 	double energy_new = metro.step(energy_old); 
-	// 	metro.step_new(); 
-	// 	metro.print_lattice(); 
-	// } 
-
-	metro.simulate_new(n_steps); 
-	metro.print_lattice(); 
-
+	int result = metro.bin_to_int(); 
+	cout << result << "\n"; 
 
 	// Ising2D metro (size, temp); 
 

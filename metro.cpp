@@ -3,18 +3,20 @@
 using namespace std; 
 
 
-metropolis::metropolis(int size, double temp, vector<vector<double>> J) :
+metropolis::metropolis(int size, double temp) :
 	lattice_(size),
+	J_(size, vector<double>(size)), 
 	temp_(temp),
 	size_(size), 
 	seed_(std::chrono::system_clock::now().time_since_epoch().count()),
 	r_engine_(seed_),
 	bin_rand_(0,1),
 	ind_rand_(0, size-1),
-	prob_rand_(0.0, 1.0)
+	prob_rand_(0.0, 1.0), 
+	norm_rand_(0.0, 1.0)
 {
-	J_ = J; 
 	init_lattice_random(); 
+	init_J_random(); 
 }
 
 
@@ -23,12 +25,23 @@ metropolis::~metropolis()
 
 }
 
-
 void metropolis::init_lattice_random()
 {
   for (int i=0; i < size_; i++) {
     lattice_[i] = -1 + 2 * bin_rand_(r_engine_);
   }
+}
+
+void metropolis::init_J_random()
+{
+	for (int i=0; i < size_; i++) {
+		for (int j=0; j < i; j++)
+		{
+	    	J_[i][j] = norm_rand_(r_engine_);
+	    	J_[j][i] = J_[i][j]; 
+	    }
+	    J_[i][i] = 0; 	
+	}
 }
 
 double metropolis::energy()
@@ -97,12 +110,46 @@ void metropolis::step_new()
 	return; 
 }
 
+void metropolis::run(int repeat, int n_steps)
+{
+	for (int i = 0; i < repeat; i++)
+	{
+		// print_J(); 
+		// print_lattice(); 
+		simulate_new(n_steps); 
+		// print_lattice(); 
+		init_J_random(); 
+		if (i % 10000 == 0)
+		{
+			cout << i << "\n"; 
+		}
+		// cout << "\n"; 
+	}
+	return; 
+}
+
+int metropolis::bin_to_int()
+{
+	int sum = 0; 
+	int temp = 1; 
+	for (int i = 0; i < size_; i++)
+	{
+		if (lattice_[i] == 1)
+		{
+			sum = sum + temp; 
+		}
+		temp = temp * 2; 
+	}
+	return sum; 
+}
+
 void metropolis::simulate_new(int n_steps)
 {
 	for (int i = 0; i < n_steps; i++) 
 	{
 		step_new(); 
 	}
+	return; 
 }
 
 
@@ -129,13 +176,32 @@ vector<int> metropolis::get_lattice()
 	return lattice_; 
 }
 
+
+vector<vector<double>> metropolis::get_J()
+{
+	return J_; 
+}
+
 void metropolis::print_lattice()
 {
 	for (int i=0; i < size_; i++) {
 		cout << lattice_[i] << " | "; 
 	}
-	cout << '\n';
+	cout << "\n";
 }
+
+void metropolis::print_J()
+{
+	for (int i=0; i < size_; i++) 
+	{
+		for (int j = 0; j < size_; j++)
+		{
+			cout << J_[i][j] << " | "; 
+		}
+		cout << "\n";
+	}
+}
+
 
 // void metropolis::set_temp(double temp) 
 // {

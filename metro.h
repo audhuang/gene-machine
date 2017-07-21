@@ -8,17 +8,22 @@ using namespace std;
 
 class metropolis {
 	public:
-		metropolis(int size, double temp, vector<vector<double>> J);
+		metropolis(int size, double temp);
 		~metropolis(); 
 		void init_lattice_random(); 
+		void init_J_random(); 
 		double energy(); 
 		double energy_new(); 
 		double step(double energy_old); 
 		void step_new(); 
+		void run(int repeat, int n_steps); 
 		vector<double> simulate(int n_steps);
 		void simulate_new(int n_steps); 
 		vector<int> get_lattice();
+		vector<vector<double>> get_J(); 
 		void print_lattice(); 
+		void print_J(); 
+		int bin_to_int(); 
 
 		// void set_temp(double temp);
 		// void set_J(vector<vector<double>> J); 
@@ -35,6 +40,7 @@ class metropolis {
 		uniform_int_distribution<int> bin_rand_;
 		uniform_int_distribution<int> ind_rand_;
 		uniform_real_distribution<double> prob_rand_;
+		normal_distribution<double> norm_rand_; 
 
 };
 

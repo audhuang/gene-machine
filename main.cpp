@@ -20,7 +20,7 @@ int main()
 	metro.print_lattice(); 
 
 
-	int n_steps = 5; 
+	int n_steps = 50; 
 	// vector<double> energy = metro.simulate(n_steps); 
 	// for (int i = 0; i < (n_steps + 1); i++) {
 	// 	cout << energy[i] << " | "; 

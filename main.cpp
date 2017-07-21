@@ -1,4 +1,3 @@
-// #include "metro.h"
 #include "metro.h"
 using namespace std; 
 
@@ -17,11 +16,14 @@ int main()
 
 
 	metropolis metro(size, temp); 
-	metro.print_J(); 
-	metro.simulate_new(3); 
-	metro.print_lattice(); 
-	int result = metro.bin_to_int(); 
-	cout << result << "\n"; 
+	double energy_old = metro.energy(); 
+
+	for (int i = 0; i < size; i++)
+	{
+		metro.print_lattice(); 		
+		metro.step_new(); 
+		cout << "\n"; 
+	}
 
 	// Ising2D metro (size, temp); 
 

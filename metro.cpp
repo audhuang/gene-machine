@@ -49,9 +49,10 @@ double metropolis::energy()
 	double sum = 0; 
 	for (int i = 0; i < size_; i++)
 	{
-		vector<double> col = J_[i]; 
-		sum = sum + inner_product(lattice_.begin(), lattice_.end(), col.begin(), 0.); 
-
+		for (int j = 0; j < size_; j++)
+		{
+			sum = sum + lattice_[i] * lattice_[j] * J_[i][j]; 
+		}
 	}
 	return sum; 
 }
@@ -62,33 +63,41 @@ double metropolis::energy_new()
 }
 
 
-double metropolis::step(double energy_old)
+void metropolis::step()
 {
 	int flip_ind = ind_rand_(r_engine_); 
+	double energy_old = energy(); 
 	lattice_[flip_ind] = -lattice_[flip_ind]; 
 	double energy_new = energy(); 
+	cout << "old: " << energy_new - energy_old << "\n"; 
+
 	double trans_prob = min(exp(-1 * (energy_new - energy_old) / temp_), 1.); 
 	double rv = prob_rand_(r_engine_); 
 	// cout << "old: " << -1 * (energy_new - energy_old) << "\n"; 
 	
 	if (rv > trans_prob)
 	{
-		energy_new = energy_old; 
 		lattice_[flip_ind] = -lattice_[flip_ind]; 
 	}
-	print_lattice(); 
-	return energy_new; 
+	return; 
 }
 
 void metropolis::step_new()
 {
 
 	int flip_ind = ind_rand_(r_engine_); 
+
+	// double energy_old = energy(); 
+	// lattice_[flip_ind] = -lattice_[flip_ind]; 
+	// double energy_new = energy(); 
+	// lattice_[flip_ind] = -lattice_[flip_ind]; 
+	// cout << "old: " << energy_new - energy_old << "\n"; 
+
 	int val_i = lattice_[flip_ind]; 
-	vector<double> col = J_[flip_ind]; 
-	double energy_diff = -2 * val_i * inner_product(lattice_.begin(), lattice_.end(), col.begin(), 0.); 
+	double energy_diff = -4 * val_i * inner_product(lattice_.begin(), lattice_.end(), J_[flip_ind].begin(), 0.); 
+	// cout << "new: " << energy_diff << "\n"; 
 	
-	if (energy_diff > 0)
+	if (energy_diff <= 0)
 	{
 		// cout << "new: 1" << "\n"; 
 		lattice_[flip_ind] = -lattice_[flip_ind]; 
@@ -96,7 +105,7 @@ void metropolis::step_new()
 	
 	else
 	{
-		double trans_prob = exp(energy_diff / temp_); 
+		double trans_prob = exp(-1 * energy_diff / temp_); 
 
 		double rv = prob_rand_(r_engine_); 
 		// cout << "new: " << trans_prob << "\n"; 
@@ -110,22 +119,21 @@ void metropolis::step_new()
 	return; 
 }
 
-void metropolis::run(int repeat, int n_steps)
+vector<int> metropolis::run(int repeat, int n_steps)
 {
+	vector<int> counts(pow(2, size_), 0); 
 	for (int i = 0; i < repeat; i++)
 	{
-		// print_J(); 
-		// print_lattice(); 
 		simulate_new(n_steps); 
-		// print_lattice(); 
-		init_J_random(); 
+		int index = bin_to_int(); 
+		counts[index] = counts[index] + 1; 
+		
 		if (i % 10000 == 0)
 		{
-			cout << i << "\n"; 
+			cout << i << ": " << index << "\n"; 
 		}
-		// cout << "\n"; 
 	}
-	return; 
+	return counts; 
 }
 
 int metropolis::bin_to_int()
@@ -153,21 +161,13 @@ void metropolis::simulate_new(int n_steps)
 }
 
 
-vector<double> metropolis::simulate(int n_steps)
+void metropolis::simulate(int n_steps)
 {
-	cout << "start: "; 
-	print_lattice(); 
-	cout << "\n";  
-	vector<double> energy_vector(n_steps + 1); 
-	double energy_old = energy(); 
-	energy_vector[0] = energy_old; 
 	for (int i = 0; i < n_steps; i++) 
 	{
-		double e = step(energy_old); 
-		energy_vector[i+1] = e; 
-		energy_old = e; 
+		step(); 
 	}
-	return energy_vector;
+	return;
 }
 
 

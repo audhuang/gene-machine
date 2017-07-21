@@ -14,10 +14,10 @@ class metropolis {
 		void init_J_random(); 
 		double energy(); 
 		double energy_new(); 
-		double step(double energy_old); 
+		void step(); 
 		void step_new(); 
-		void run(int repeat, int n_steps); 
-		vector<double> simulate(int n_steps);
+		vector<int> run(int repeat, int n_steps); 
+		void simulate(int n_steps);
 		void simulate_new(int n_steps); 
 		vector<int> get_lattice();
 		vector<vector<double>> get_J(); 

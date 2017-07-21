@@ -11,10 +11,10 @@ cdef extern from "metro.h":
         void init_J_random()
         double energy()
         double energy_new()
-        double step(double energy_old)
+        void step()
         void step_new()
-        void run(int repeat, int n_steps)
-        vector[double] simulate(int n_steps)
+        vector[int] run(int repeat, int n_steps)
+        void simulate(int n_steps)
         void simulate_new(int n_steps)
         vector[int] get_lattice()
         vector[vector[double]] get_J()
@@ -37,13 +37,13 @@ cdef class Simulator:
     def energy_new(self): 
         return self.thisptr.energy_new()
     def run(self, int repeat, int n_steps): 
-        self.thisptr.run(repeat, n_steps)
-    def step(self, double energy_old):
-        return self.thisptr.step(energy_old)
+        return self.thisptr.run(repeat, n_steps)
+    def step(self):
+        return self.thisptr.step()
     def step_new(self):
         self.thisptr.step_new()
     def simulate(self, int n_steps):
-        return self.thisptr.simulate(n_steps)
+        self.thisptr.simulate(n_steps)
     def simulate_new(self, int n_steps): 
         self.thisptr.simulate_new(n_steps)
     def get_lattice(self):

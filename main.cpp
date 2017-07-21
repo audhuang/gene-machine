@@ -27,13 +27,16 @@ int main()
 	// }
 	// cout << '\n'; 
 
-	double energy_old = metro.energy(); 
-	for (int i = 0; i < (n_steps); i++)
-	{
-		double energy_new = metro.step(energy_old); 
-		metro.step_new(); 
-		metro.print_lattice(); 
-	} 
+	// double energy_old = metro.energy(); 
+	// for (int i = 0; i < (n_steps); i++)
+	// {
+	// 	double energy_new = metro.step(energy_old); 
+	// 	metro.step_new(); 
+	// 	metro.print_lattice(); 
+	// } 
+
+	metro.simulate_new(n_steps); 
+	metro.print_lattice(); 
 
 
 	// Ising2D metro (size, temp); 

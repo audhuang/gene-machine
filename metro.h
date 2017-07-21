@@ -16,6 +16,7 @@ class metropolis {
 		double step(double energy_old); 
 		void step_new(); 
 		vector<double> simulate(int n_steps);
+		void simulate_new(int n_steps); 
 		vector<int> get_lattice();
 		void print_lattice(); 
 

@@ -44,7 +44,7 @@ def main():
 
 	# metro.run(repeat, n_steps)
 	print time.time() - t
-	# print counts
+	print counts
 
 
 

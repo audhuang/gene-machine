@@ -6,5 +6,5 @@ from Cython.Build import cythonize
 
 setup(
     name = "metro_simulator",
-    ext_modules = cythonize( "metro.pyx")
+    ext_modules = cythonize( "mitro.pyx")
 )

@@ -54,17 +54,17 @@ double metropolis::step(double energy_old)
 	int flip_ind = ind_rand_(r_engine_); 
 	lattice_[flip_ind] = -lattice_[flip_ind]; 
 	double energy_new = energy(); 
-	cout << energy_old << " vs. " << energy_new << "\n"; 
-	double trans_prob = min(exp(-(energy_new - energy_old) / temp_), 1.); 
+	double trans_prob = min(exp(-1 * (energy_new - energy_old) / temp_), 1.); 
 	double rv = prob_rand_(r_engine_); 
-	cout << rv << ", " << trans_prob << "\n"; 
+	cout << "old: " << -1 * (energy_new - energy_old) << "\n"; 
 	
-	if (rv > trans_prob)
-	{
-		energy_new = energy_old; 
-		lattice_[flip_ind] = -lattice_[flip_ind]; 
-	}
-	print_lattice(); 
+	// if (rv > trans_prob)
+	// {
+	// 	energy_new = energy_old; 
+	// 	lattice_[flip_ind] = -lattice_[flip_ind]; 
+	// }
+	// print_lattice(); 
+	lattice_[flip_ind] = -lattice_[flip_ind]; 
 	return energy_new; 
 }
 
@@ -73,9 +73,13 @@ void metropolis::step_new()
 
 	int flip_ind = ind_rand_(r_engine_); 
 	int val_i = lattice_[flip_ind]; 
-	double energy_diff = -2 * val_i * inner_product(lattice_.begin(), lattice_.end(), J_[flip_ind].begin(), 0.); 
+	vector<double> col = J_[flip_ind]; 
+	double energy_diff = -1 * val_i * inner_product(lattice_.begin(), lattice_.end(), col.begin(), 0.); 
+	
+	cout << "new: " << energy_diff << "\n"; 
 	if (energy_diff > 0)
 	{
+		// cout << "new: 1" << "\n"; 
 		lattice_[flip_ind] = -lattice_[flip_ind]; 
 	}
 	
@@ -84,7 +88,7 @@ void metropolis::step_new()
 		double trans_prob = exp(energy_diff / temp_); 
 
 		double rv = prob_rand_(r_engine_); 
-		cout << rv << ", " << trans_prob << "\n"; 
+		// cout << "new: " << trans_prob << "\n"; 
 		
 		if (rv < trans_prob)
 		{
@@ -92,7 +96,6 @@ void metropolis::step_new()
 		}
 	}
 	
-	print_lattice(); 
 	return; 
 }
 

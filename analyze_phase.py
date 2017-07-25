@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
 from boltzmann import *
 
 n = 10
@@ -61,27 +62,26 @@ def phase_graph(inp, out):
 
 def phase_new(inp, out): 
 	results = np.load(inp + '.npy')
+	print(np.shape(results))
 	J = results[:, :n**2]
 	J_none = results[:, n**2:2*n**2]
 	J_l1 = results[:, 2*n**2:]
 
 	m = len(J)
 
-	err_none = np.zeros([m])
+	# err_none = np.zeros([m])
 	err_l1 = np.zeros([m])
 
 	for i in range(m): 
-		err_none[i] = np.linalg.norm(J[i] - J_none[i])
+		# err_none[i] = np.linalg.norm(J[i] - J_none[i])
 		err_l1[i] = np.linalg.norm(J[i] - J_l1[i])
 
 		# err_none[i] = error_l0(J[i], J_none[i], n, thresh)
 		# err_l1[i] = error_l0(J[i], J_l1[i], n, thresh)
 
-	print(err_l1)
-
-	n_x = 25
-	n_y = 25
-	n_all = 50
+	n_x = 10
+	n_y = 10
+	n_all = 20
 
 	xlist = np.linspace(1, 100, n_x).astype(int)
 	params = np.zeros([n_x * n_y * n_all, 2])
@@ -103,7 +103,7 @@ def phase_new(inp, out):
 		if key not in count_dict: 
 			count_dict[key] = 0 
 			total_dict[key] = 0
-		if err_none[i] < 5 * 10**-1: 
+		if err_l1[i] < 5 * 10**-1: 
 			count_dict[key] += 1
 		total_dict[key] += 1
 		
@@ -139,9 +139,15 @@ def phase_new(inp, out):
 	plt.title('phase least squares')
 	plt.xlim([0, 1])
 	plt.ylim([0, 1])
-	plt.savefig(out + '_l2_ls_5')
+	plt.savefig(out)
 
-
+	grid_x, grid_y = np.mgrid[0:1:100j, 0:1:200j]
+	grid_z2 = griddata(points[:, :2], points[:, -1], (grid_x, grid_y), method='cubic')
+	plt.figure()
+	plt.imshow(grid_z2.T, extent=(0,1,0,1), origin='lower')
+	plt.xlim([0, 1])
+	plt.ylim([0, 1])
+	plt.savefig(out + '_interpolate')
 
 
 
@@ -149,7 +155,7 @@ def phase_new(inp, out):
 
 
 def main(): 
-	inp = './phase_results/phase_new_50'
+	inp = './phase_results/test'
 	out = inp
 	phase_new(inp, out)
 

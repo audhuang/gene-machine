@@ -6,7 +6,7 @@ from numpy.linalg import matrix_rank
 from scipy.sparse import random
 
 
-mu = 0.
+mu = -1.
 sigma = 1.
 num_sparse=20
 a = 0.001
@@ -20,7 +20,10 @@ def get_full_S(x_all, n):
    return S
 
 def get_random_S(n): 
-   return np.random.normal(mu, sigma, [2**n, n**2])
+   x = np.random.normal(mu, sigma, [2**n, n**2])
+   # norm = np.linalg.norm(x, axis=0)
+   # return np.divide(x, norm)
+   return x 
 
 def get_bin_S(n): 
    x = np.random.binomial(1, 0.5, [2**n, n**2])
@@ -120,7 +123,7 @@ def vary_samples2(x, n, i, q):
    if x % 400 == 0: 
       print(x, i, q, k)
 
-   return list(J_none) + list(J_l1)
+   return list(J) + list(J_none) + list(J_l1)
 
 
 def run(n, num, out): 
@@ -134,9 +137,9 @@ def run(n, num, out):
    np.save(out + 'phase_all', output)
 
 def run2(n, num, out): 
-   n_x = 20
-   n_y = 20
-   n_all = 50
+   n_x = 10
+   n_y = 10
+   n_all = 20
 
    xlist = np.linspace(1, 100, n_x).astype(int)
    params = np.zeros([n_x * n_y * n_all, 2])
@@ -155,7 +158,7 @@ def run2(n, num, out):
    output = [p.get() for p in results]
    # print(np.shape(output))
 
-   np.save(out + 'phase_new_50', output)
+   np.save(out + 'test', output)
 
 
 

@@ -12,23 +12,6 @@ num_sparse=20
 a = 0.001
 
 
-def get_full_S(x_all, n): 
-   S = np.zeros([2 ** n, n, n])
-   base = np.random.randint(0, 2**n)
-   for i in range(2**n): 
-      S[i] = np.transpose(np.outer(x_all[i], x_all[i]) - np.outer(x_all[base], x_all[base]))
-   return S
-
-def get_random_S(n): 
-   x = np.random.normal(mu, sigma, [2**n, n**2])
-   # norm = np.linalg.norm(x, axis=0)
-   # return np.divide(x, norm)
-   return x 
-
-def get_bin_S(n): 
-   x = np.random.binomial(1, 0.5, [2**n, n**2])
-   x = x * 2 - 1
-   return x
 
 def graph(x, n, param):  
    obs = param[0]
@@ -108,7 +91,8 @@ def vary_samples2(x, n, i, q):
    J = sparse_rand(n, q)
    k = np.sum(J != 0)
 
-   S_flat = get_random_S(n)
+   # S_flat = get_random_S(n)
+   S_flat = get_noise_S(n)
 
    indices = np.random.choice(2**n, i)
 

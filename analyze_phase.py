@@ -115,9 +115,6 @@ def phase_new(inp, out):
 		xlel = int(lel[0])
 		ylel = int(lel[1])
 
-		if total_dict[key] != 50: 
-			print(key, count_dict[key], total_dict[key])
-
 		delta = xlel / n**2
 		nu = (n**2 - ylel) / xlel
 

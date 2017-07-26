@@ -4,7 +4,9 @@ import random
 from sklearn.linear_model import Lasso
 from numpy.linalg import matrix_rank
 
-
+'''
+generating J
+'''
 
 def random_network(n, mu = 0., sigma = 1.): 
 	random = np.random.normal(mu, sigma, [n, n])
@@ -56,6 +58,49 @@ def sparse_rand(n, num, mu = 0., sigma = 1.):
 		for i in range(num): 
 			random[indices[i]] = 0
 		return random
+
+
+'''
+generating S
+'''
+
+def get_full_S(x_all, n): 
+   S = np.zeros([2 ** n, n, n])
+   base = np.random.randint(0, 2**n)
+   for i in range(2**n): 
+      S[i] = np.transpose(np.outer(x_all[i], x_all[i]) - np.outer(x_all[base], x_all[base]))
+   return S
+
+def get_random_S(n, mu=0., sigma=1.): 
+   x = np.random.normal(mu, sigma, [2**n, n**2])
+   # norm = np.linalg.norm(x, axis=0)
+   # return np.divide(x, norm)
+   return x 
+
+def get_bin_S(n): 
+   x = np.random.binomial(1, 0.5, [2**n, n**2])
+   x = x * 2 - 1
+   return x
+
+def get_noise_S(n): 
+   S = np.zeros([2**n, n**2])
+   x = np.random.normal(-1, 1, [n**2])
+   for i in range(2**n): 
+      S[i] = x + np.random.normal(1, .01, [n**2])
+   return S
+
+def xall_to_S(x_all, n): 
+	S = np.zeros([2**n, 2**n, n, n])
+	for i in range(2**n): 
+		for j in range(2**n): 
+			prod = np.outer(x_all[i], x_all[i]) - np.outer(x_all[j], x_all[j])
+			S[i, j] = prod
+	return S
+
+
+'''
+MCMC helper functions
+'''
 
 # check the math here
 def energy(x, J, h):
@@ -178,14 +223,10 @@ def states_to_dE_one(states, x_all, n, threshold, c):
 
 
 
-def xall_to_S(x_all, n): 
-	S = np.zeros([2**n, 2**n, n, n])
-	for i in range(2**n): 
-		for j in range(2**n): 
-			prod = np.outer(x_all[i], x_all[i]) - np.outer(x_all[j], x_all[j])
-			S[i, j] = prod
-	return S
 
+'''
+solving & error
+'''
 
 def solve(S, dE):
 	inv = np.linalg.pinv(S)
@@ -215,6 +256,22 @@ def main():
 	n = 5
 	c = 1.
 	threshold = 10.
+
+	# S = get_noise_S(n)
+	S = get_random_S(n)
+	count = 0
+	total = 0
+
+	norm = np.linalg.norm(S, axis=0)
+	S = np.divide(S, norm)
+
+	for i in range(2**n): 
+		for j in range(i, 2**n): 
+			count += np.dot(S[i], S[j])
+			total += 1
+	print(count / total)
+	return
+
 
 	bin_to_int = {}
 	int_to_bin = {}

@@ -8,6 +8,7 @@ metropolis::metropolis(int size, double temp) :
 	J_(size, vector<double>(size)), 
 	temp_(temp),
 	size_(size), 
+	h_(size), 
 	seed_(std::chrono::system_clock::now().time_since_epoch().count()),
 	r_engine_(seed_),
 	bin_rand_(0,1),
@@ -17,6 +18,8 @@ metropolis::metropolis(int size, double temp) :
 {
 	init_lattice_random(); 
 	init_J_random(); 
+	init_h_zero(); 
+
 }
 
 
@@ -44,6 +47,7 @@ void metropolis::init_J_random()
 	}
 }
 
+// add in h 
 double metropolis::energy()
 {
 	double sum = 0; 
@@ -82,6 +86,8 @@ void metropolis::step()
 	return; 
 }
 
+// add in h 
+// https://stackoverflow.com/questions/3376124/how-to-add-element-by-element-of-two-stl-vectors
 void metropolis::step_new()
 {
 
@@ -202,6 +208,23 @@ void metropolis::print_J()
 	}
 }
 
+void metropolis::set_h(vector<double> h)
+{
+	h_ = h; 
+}
+
+void metropolis::init_h_zero()
+{
+	for (int i = 0; i < size_; i++)
+	{
+		h_[i] = 0; 
+	}
+}
+
+vector<double> metropolis::get_h()
+{
+	return h_; 
+}
 
 // void metropolis::set_temp(double temp) 
 // {

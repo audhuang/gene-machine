@@ -24,6 +24,9 @@ class metropolis {
 		void print_lattice(); 
 		void print_J(); 
 		int bin_to_int(); 
+		void set_h(vector<double> h); 
+		void init_h_zero(); 
+		vector<double> get_h(); 
 
 		// void set_temp(double temp);
 		// void set_J(vector<vector<double>> J); 
@@ -34,6 +37,7 @@ class metropolis {
 		double temp_;  // temperature ( T = 1/beta ) 
 		vector<vector<double>> J_; 
 		int size_; 
+		vector<double> h_; 
 
 		unsigned seed_;  // random seed
 		default_random_engine r_engine_;

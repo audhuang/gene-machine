@@ -15,9 +15,9 @@ def run(i, n, temp, n_steps):
 
 def main(): 
 	n = 5
-	temp = 1
-	repeat = 10 ** 5
-	n_steps = 1000
+	temp = .5
+	repeat = 10 ** 4
+	n_steps = 500
 
 	t = time.time()
 
@@ -27,8 +27,17 @@ def main():
 	# print(np.shape(output))
 	# print(output[:10])
 
+	counts_all = np.zeros([6, 2**n])
 	metro = Simulator(n, temp)
 	counts = np.asarray(metro.run(repeat, n_steps)).astype(int)
+	counts_all[0] = counts
+	for i in range(5): 
+		h_new = np.asarray(metro.get_h())
+		h = np.random.normal(0, 1, [n])
+		metro.set_h(h)
+		counts = np.asarray(metro.run(repeat, n_steps)).astype(int)
+		counts_all[i+1] = counts
+		
 
 	# counts = np.zeros([2**n])
 
@@ -44,7 +53,7 @@ def main():
 
 	# metro.run(repeat, n_steps)
 	print time.time() - t
-	print counts
+	print counts_all
 
 
 

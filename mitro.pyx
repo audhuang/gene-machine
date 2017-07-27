@@ -21,6 +21,9 @@ cdef extern from "metro.h":
         void print_lattice()
         void print_J()
         int bin_to_int()
+        void set_h(vector[double] h)
+        void init_h_zero()
+        vector[double] get_h()
         
 cdef class Simulator:
     cdef metropolis *thisptr
@@ -56,6 +59,12 @@ cdef class Simulator:
         self.thisptr.print_J()
     def bin_to_int(self): 
         return self.thisptr.bin_to_int()
+    def set_h(self, vector[double] h): 
+        self.thisptr.set_h(h)
+    def init_h_zero(self): 
+        self.thisptr.init_h_zero()
+    def get_h(self): 
+        return self.thisptr.get_h()
 
 
 

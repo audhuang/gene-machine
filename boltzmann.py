@@ -82,11 +82,11 @@ def get_bin_S(n):
    x = x * 2 - 1
    return x
 
-def get_noise_S(n): 
+def get_noise_S(n, var): 
    S = np.zeros([2**n, n**2])
    x = np.random.normal(-1, 1, [n**2])
    for i in range(2**n): 
-      S[i] = x + np.random.normal(1, .01, [n**2])
+      S[i] = x + np.random.normal(1, var, [n**2])
    return S
 
 def xall_to_S(x_all, n): 
@@ -257,8 +257,8 @@ def main():
 	c = 1.
 	threshold = 10.
 
-	# S = get_noise_S(n)
-	S = get_random_S(n)
+	S = get_noise_S(n)
+	# S = get_random_S(n)
 	count = 0
 	total = 0
 
@@ -270,6 +270,7 @@ def main():
 			count += np.dot(S[i], S[j])
 			total += 1
 	print(count / total)
+	print(matrix_rank(S))
 	return
 
 

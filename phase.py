@@ -86,13 +86,13 @@ def vary_samples(x, n):
 
    # np.save(out + 'phase_' + str(num), results)
 
-def vary_samples2(x, n, i, q): 
+def vary_samples2(x, n, i, q, var): 
    
    J = sparse_rand(n, q)
    k = np.sum(J != 0)
 
    # S_flat = get_random_S(n)
-   S_flat = get_noise_S(n)
+   S_flat = get_noise_S(n, var)
 
    indices = np.random.choice(2**n, i)
 
@@ -137,12 +137,19 @@ def run2(n, num, out):
             count += 1
    params = params.astype(int)
 
-   pool = mp.Pool()
-   results = [pool.apply_async(vary_samples2, args=(x, n, params[x, 0], params[x, 1])) for x in range(len(params))]
-   output = [p.get() for p in results]
-   # print(np.shape(output))
+   # varlist = [0.01, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.7, 0.8, 0.9, 1.]
+   varlist = [0.12, 0.15, 0.18]
 
-   np.save(out + 'test', output)
+   for var in varlist: 
+      print('var: ', var)
+
+      pool = mp.Pool()
+      results = [pool.apply_async(vary_samples2, args=(x, n, params[x, 0], params[x, 1], var)) for x in range(len(params))]
+      output = [p.get() for p in results]
+      # print(np.shape(output))
+
+      np.save(out + 'tests_' + str(int(var * 100)), output)
+
 
 
 

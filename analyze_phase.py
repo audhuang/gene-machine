@@ -125,7 +125,8 @@ def phase_new(inp, out):
 		# print(xlel, ylel, count_dict[key] / n_all)
 
 		count += 1
-	# print(points)
+	print(points)
+	print(np.sum(points[:, -1] >= 0.75) / len(points))
 
 
 	plt.figure()
@@ -149,12 +150,142 @@ def phase_new(inp, out):
 
 
 
+def phase_all(inp, out): 
+
+	n_x = 10
+	n_y = 10
+	n_all = 20
+
+	xlist = np.linspace(1, 100, n_x).astype(int)
+	params = np.zeros([n_x * n_y * n_all, 2])
+	count = 0
+
+	for x in xlist: 
+	  ylist = np.linspace(n**2-x, n**2, n_y).astype(int)
+	  for y in ylist: 
+	     for j in range(n_all): 
+	        params[count] = [x, y]
+	        count += 1
+	params = params.astype(int)
+
+	varlist = [0.01, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.7, 0.8, 0.9, 1.]
+	fraclist = []
+	slist = []
+	for var in varlist: 
+		if var == 0.01: 
+			v = 'p01'
+		elif var == 0.05: 
+			v = 'p05'
+		else: 
+			v = str(int(var * 10))
+		print('var: ', v)
+		results = np.load(inp + v + '.npy')
+		J = results[:, :n**2]
+		J_none = results[:, n**2:2*n**2]
+		J_l1 = results[:, 2*n**2:]
+
+		m = len(J)
+
+		# err_none = np.zeros([m])
+		err_l1 = np.zeros([m])
+
+		for i in range(m): 
+			# err_none[i] = np.linalg.norm(J[i] - J_none[i])
+			err_l1[i] = np.linalg.norm(J[i] - J_l1[i])
+
+			# err_none[i] = error_l0(J[i], J_none[i], n, thresh)
+			# err_l1[i] = error_l0(J[i], J_l1[i], n, thresh)
+
+		count_dict = {}
+		total_dict = {}
+
+		for i in range(m): 
+			key = str(params[i, 0]) + '_' + str(params[i, 1])
+			if key not in count_dict: 
+				count_dict[key] = 0 
+				total_dict[key] = 0
+			if err_l1[i] < 5 * 10**-1: 
+				count_dict[key] += 1
+			total_dict[key] += 1
+			
+
+		points = np.zeros([len(count_dict.keys()), 3])
+		count = 0
+		for key in count_dict.keys(): 
+			lel = key.split('_')
+			xlel = int(lel[0])
+			ylel = int(lel[1])
+
+			delta = xlel / n**2
+			nu = (n**2 - ylel) / xlel
+
+			points[count, 0] = delta
+			points[count, 1] = nu
+			points[count, 2] = count_dict[key] / total_dict[key]
+
+			# print(xlel, ylel, count_dict[key] / n_all)
+
+			count += 1
+		# print(points)
+		frac = np.sum(points[:, -1] >= 0.75) / len(points)
+		fraclist.append(frac)
+
+		S = get_noise_S(n, var)
+		count = 0
+		total = 0
+
+		norm = np.linalg.norm(S, axis=0)
+		S = np.divide(S, norm)
+
+		for i in range(2**n): 
+			for j in range(i, 2**n): 
+				count += np.dot(S[i], S[j])
+				total += 1
+		sl = count / total
+		slist.append(sl)
+
+	plt.figure()
+	plt.plot(slist, fraclist)
+	plt.title('ave dot vs area')
+	plt.xlabel('ave. S dot product')
+	plt.ylabel('phase diagram area')
+	plt.savefig(out + 'ave_dot')
+
+	plt.figure()
+	plt.plot(varlist, fraclist)
+	plt.title('var vs area')
+	plt.xlabel('noise variance')
+	plt.ylabel('phase diagram area')
+	plt.savefig(out + 'var')
+
+
+		# plt.figure()
+		# plt.scatter(points[:, 0], points[:, 1], c=points[:, 2], s=10, cmap="jet", vmin=0, vmax=1, lw=0)
+		# plt.colorbar()
+		# plt.xlabel('delta')
+		# plt.ylabel('nu')
+		# plt.title('phase least squares')
+		# plt.xlim([0, 1])
+		# plt.ylim([0, 1])
+		# plt.savefig(out + v)
+		# plt.close()
+
+		# grid_x, grid_y = np.mgrid[0:1:100j, 0:1:200j]
+		# grid_z2 = griddata(points[:, :2], points[:, -1], (grid_x, grid_y), method='cubic')
+		# plt.figure()
+		# plt.imshow(grid_z2.T, extent=(0,1,0,1), origin='lower')
+		# plt.xlim([0, 1])
+		# plt.ylim([0, 1])
+		# plt.savefig(out + v + '_interpolate')
+		# plt.close()
+
 
 
 def main(): 
-	inp = './phase_results/test'
+	inp = './phase_results/tests_18'
 	out = inp
 	phase_new(inp, out)
+	# phase_all(inp, out)
 
 
 if __name__ == '__main__':

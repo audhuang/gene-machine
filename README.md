@@ -1,5 +1,5 @@
-(1. build cython and c++ code) python setup.py build_ext -i  
-(2. run the simulation through python) python run.py  
+[1. build cython and c++ code] python setup.py build_ext -i  
+[2. run the simulation through python] python run.py  
   
   
 metro.cpp - actual simulation functions in C++  

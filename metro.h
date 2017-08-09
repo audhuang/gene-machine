@@ -1,6 +1,9 @@
 #include <vector>
 #include <random>
 #include <iostream>
+#include <sstream>
+#include <string>
+
 
 
 using namespace std; 
@@ -23,10 +26,11 @@ class metropolis {
 		vector<vector<double>> get_J(); 
 		void print_lattice(); 
 		void print_J(); 
-		int bin_to_int(); 
+		vector<unsigned long int> bin_to_int(); 
 		void set_h(vector<double> h); 
 		void init_h_zero(); 
-		vector<double> get_h(); 
+		vector<double> get_h();
+		string get_lattice_string();  
 
 		// void set_temp(double temp);
 		// void set_J(vector<vector<double>> J); 

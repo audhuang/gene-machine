@@ -2,7 +2,10 @@
 # distutils: sources = metro.cpp
 # distutils: extra_compile_args = -std=c++11 -stdlib=libc++ -mmacosx-version-min=10.7
 
+
 from libcpp.vector cimport vector
+from libcpp.string cimport string
+
 
 cdef extern from "metro.h":
     cdef cppclass metropolis:
@@ -20,10 +23,11 @@ cdef extern from "metro.h":
         vector[vector[double]] get_J()
         void print_lattice()
         void print_J()
-        int bin_to_int()
+        vector[unsigned long int] bin_to_int()
         void set_h(vector[double] h)
         void init_h_zero()
         vector[double] get_h()
+        string get_lattice_string()
         
 cdef class Simulator:
     cdef metropolis *thisptr
@@ -65,6 +69,8 @@ cdef class Simulator:
         self.thisptr.init_h_zero()
     def get_h(self): 
         return self.thisptr.get_h()
+    def get_lattice_string(self): 
+        return self.thisptr.get_lattice_string()
 
 
 

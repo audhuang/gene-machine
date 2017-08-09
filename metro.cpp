@@ -1,5 +1,7 @@
 #include "metro.h"
 #include <chrono> 
+#include <sstream>
+#include <string>
 using namespace std; 
 
 
@@ -32,6 +34,7 @@ void metropolis::init_lattice_random()
 {
   for (int i=0; i < size_; i++) {
     lattice_[i] = -1 + 2 * bin_rand_(r_engine_);
+    // lattice_[i] = 1; 
   }
 }
 
@@ -131,29 +134,46 @@ vector<int> metropolis::run(int repeat, int n_steps)
 	for (int i = 0; i < repeat; i++)
 	{
 		simulate_new(n_steps); 
-		int index = bin_to_int(); 
-		counts[index] = counts[index] + 1; 
+		vector<unsigned long int> index = bin_to_int(); 
+		counts[index[0]] = counts[index[0]] + 1; 
 		
 		if (i % 10000 == 0)
 		{
-			cout << i << ": " << index << "\n"; 
+			cout << i << ": " << index[0] << "\n"; 
 		}
 	}
 	return counts; 
 }
 
-int metropolis::bin_to_int()
+
+
+vector<unsigned long int> metropolis::bin_to_int()
 {
-	int sum = 0; 
-	int temp = 1; 
-	for (int i = 0; i < size_; i++)
+	vector<unsigned long int> sum = {0, 0}; 
+	unsigned long int temp = 1; 
+	unsigned long int mult = 2; 
+	for (int i = 0; i < (size_ /2); i++)
 	{
 		if (lattice_[i] == 1)
 		{
-			sum = sum + temp; 
+			sum[0] = sum[0] + temp; 
 		}
-		temp = temp * 2; 
+		temp = temp * mult; 
+		// cout << i << " | " << sum[0] << "\n"; 
 	}
+
+	temp = 1; 
+	mult = 2; 
+	for (int i = (size_ / 2); i < size_ ; i++)
+	{
+		if (lattice_[i] == 1)
+		{
+			sum[1] = sum[1] + temp; 
+		}
+		temp = temp * mult; 
+		// cout << i << " || " << sum[1] << "\n"; 
+	}
+
 	return sum; 
 }
 
@@ -195,6 +215,21 @@ void metropolis::print_lattice()
 	}
 	cout << "\n";
 }
+
+string metropolis::get_lattice_string()
+{
+	vector<int> binary(size_); 
+	for (int i = 0; i < size_; i++)
+	{
+		binary[i] = (lattice_[i] + 1) / 2; 
+	}
+
+	stringstream result;
+	copy(binary.begin(), binary.end(), ostream_iterator<int>(result, ""));
+
+	return result.str(); 
+}
+
 
 void metropolis::print_J()
 {

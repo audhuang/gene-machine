@@ -103,7 +103,8 @@ void metropolis::step_new()
 	// cout << "old: " << energy_new - energy_old << "\n"; 
 
 	int val_i = lattice_[flip_ind]; 
-	double energy_diff = -4 * val_i * inner_product(lattice_.begin(), lattice_.end(), J_[flip_ind].begin(), 0.); 
+	double temp_var = -2 * val_i * h_[flip_ind]; 
+	double energy_diff = -4 * val_i * inner_product(lattice_.begin(), lattice_.end(), J_[flip_ind].begin(), 0.) + temp_var; 
 	// cout << "new: " << energy_diff << "\n"; 
 	
 	if (energy_diff <= 0)

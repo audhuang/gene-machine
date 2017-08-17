@@ -57,9 +57,9 @@ def main():
 
 	'''
 	n = 100 
-	temp = 2
-	repeat = 10**5
-	n_steps = 1000
+	temp = 1
+	repeat = 1
+	n_steps = 10**7
 
 	states, counts = run(n, temp, repeat, n_steps)
 
